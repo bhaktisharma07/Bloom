@@ -1,0 +1,498 @@
+/* Bloom Landing Page Design System & Styles (Responsive Desktop-First) */
+
+:root {
+  --bg-color: #FFF8F5;
+  --pink: #FFD6E7;
+  --lavender: #E8D9FF;
+  --cream: #FFF3E6;
+  --mint: #DDF5E5;
+  --text: #5B5563;
+  --text-light: #8E8597;
+  --card-bg: #FFFFFF;
+  --shadow: 0 16px 40px rgba(91, 85, 99, 0.04);
+  --shadow-sm: 0 4px 12px rgba(91, 85, 99, 0.02);
+  --shadow-hover: 0 24px 56px rgba(91, 85, 99, 0.08);
+  --border-radius: 28px;
+  --border-radius-sm: 18px;
+  --transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-slow: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pink);
+  border-radius: 10px;
+}
+
+/* 1200px Main Container (Centers on wide desktop) */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Brand Header */
+.top-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.top-logo {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.5px;
+}
+
+/* Cozy Card */
+.cozy-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 248, 245, 0.8);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.cozy-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Hero Section (Two-column layout on desktop) */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+  padding: 40px 0 80px 0;
+}
+
+.hero-content {
+  flex: 1.2;
+  text-align: left;
+}
+
+.hero-title {
+  font-size: 48px;
+  line-height: 1.15;
+  font-weight: 850;
+  color: var(--text);
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+
+.hero-description {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin-bottom: 32px;
+  max-width: 480px;
+}
+
+.hero-illustration {
+  flex: 1;
+  height: 380px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Button */
+.cozy-btn {
+  background: var(--pink);
+  border: none;
+  padding: 18px 36px;
+  border-radius: var(--border-radius-sm);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(255, 214, 231, 0.4);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.cozy-btn:hover {
+  background: var(--lavender);
+  transform: scale(1.03) translateY(-2px);
+  box-shadow: 0 12px 24px rgba(232, 217, 255, 0.5);
+}
+
+/* Features Grid (3 columns on desktop) */
+.features-container {
+  margin-bottom: 80px;
+}
+
+.features-title {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.features-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 32px 28px;
+}
+
+.feature-illustration {
+  width: 60px;
+  height: 60px;
+  background: var(--cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.feature-card:nth-child(2) .feature-illustration {
+  background: var(--pink);
+}
+
+.feature-card:nth-child(3) .feature-illustration {
+  background: var(--lavender);
+}
+
+.feature-info h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.feature-info p {
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* Garden Preview Card */
+.garden-preview-card {
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 80px;
+}
+
+.garden-preview-header {
+  padding: 32px 32px 0 32px;
+}
+
+.garden-preview-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.garden-preview-container {
+  height: 340px;
+  width: 100%;
+  background: linear-gradient(180deg, #EBF8FF 0%, #FFF8F5 100%);
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.garden-soil {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background: linear-gradient(180deg, #D9C5B2 0%, #C8B099 100%);
+  z-index: 2;
+}
+
+.garden-grass {
+  position: absolute;
+  bottom: 52px;
+  left: 0;
+  width: 100%;
+  height: 24px;
+  background-color: #A3E2B6;
+  border-radius: 40% 40% 0 0 / 100% 100% 0 0;
+  z-index: 3;
+}
+
+.garden-flowers-container {
+  position: absolute;
+  bottom: 42px;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-end;
+  padding: 0 80px;
+  z-index: 4;
+}
+
+.flower-preview-spot {
+  transform-origin: bottom center;
+  animation: sway 6s infinite ease-in-out;
+  width: 54px;
+  height: 100px;
+}
+
+.flower-preview-spot:nth-child(even) {
+  animation-delay: -3s;
+}
+
+.flower-preview-spot:nth-child(3) {
+  animation-delay: -1.5s;
+  animation-duration: 7s;
+}
+
+/* Clouds & Butterflies (Drifting across the wide sky) */
+.floating-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 30px;
+  height: 18px;
+}
+
+.floating-cloud::before, .floating-cloud::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+}
+
+.cloud-1 {
+  width: 70px;
+  top: 30px;
+  left: 50px;
+  animation: drift 28s infinite linear;
+}
+.cloud-1::before { width: 34px; height: 34px; top: -16px; left: 12px; }
+.cloud-1::after { width: 24px; height: 24px; top: -10px; right: 8px; }
+
+.cloud-2 {
+  width: 85px;
+  top: 60px;
+  right: 50px;
+  animation: drift-reverse 34s infinite linear;
+}
+.cloud-2::before { width: 42px; height: 42px; top: -18px; left: 15px; }
+.cloud-2::after { width: 28px; height: 28px; top: -12px; right: 10px; }
+
+.butterfly {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  animation: flutter-path-1 15s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.bf-1 {
+  top: 80px;
+  left: 120px;
+}
+
+/* Quote Card (Constrained for readability) */
+.quote-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 80px;
+}
+
+.quote-card {
+  background: var(--cream);
+  border-radius: var(--border-radius);
+  padding: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 680px;
+  width: 100%;
+}
+
+.quote-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.quote-text {
+  font-size: 18px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.quote-author {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-light);
+  font-weight: 700;
+}
+
+/* Footer (Splits cleanly on desktop) */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid rgba(91, 85, 99, 0.05);
+  margin-top: auto;
+}
+
+.footer-brand {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.footer-copy {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* Animations */
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes drift {
+  0% { transform: translateX(-120px); }
+  100% { transform: translateX(1250px); }
+}
+
+@keyframes drift-reverse {
+  0% { transform: translateX(120px) scaleX(-1); }
+  100% { transform: translateX(-1250px) scaleX(-1); }
+}
+
+@keyframes flutter-path-1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(150px, -40px) rotate(15deg); }
+  50% { transform: translate(300px, 20px) rotate(-10deg); }
+  75% { transform: translate(100px, -60px) rotate(20deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* --- MOBILE RESPONSIVENESS OVERRIDES --- */
+@media (max-width: 900px) {
+  .hero-section {
+    gap: 40px;
+  }
+  .hero-title {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 24px 16px;
+  }
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 0 40px 0;
+    gap: 32px;
+  }
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .hero-title {
+    font-size: 34px;
+  }
+  .hero-description {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+  .hero-illustration {
+    width: 100%;
+    height: 280px;
+  }
+  .features-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .feature-card {
+    padding: 24px;
+  }
+  .garden-preview-header {
+    padding: 24px 20px 0 20px;
+  }
+  .garden-preview-header h2 {
+    font-size: 20px;
+  }
+  .garden-preview-container {
+    height: 240px;
+  }
+  .garden-flowers-container {
+    padding: 0 20px;
+  }
+  .flower-preview-spot {
+    width: 40px;
+    height: 80px;
+  }
+  .quote-card {
+    padding: 24px;
+  }
+  .quote-text {
+    font-size: 15px;
+  }
+  .footer {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
