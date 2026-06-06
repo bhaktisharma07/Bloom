@@ -109,9 +109,11 @@ export const HeroIllustrationSVG = () => (
     <text x="170" y="60" fill="#FFEAA7" fontSize="14">✨</text>
   </svg>
 );
+
 export const SparkleSVG = () => (
   <span style={{ color: '#FFEAA7', display: 'inline-block' }}>✨</span>
 );
+
 export const FlowerLogoSVG = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="#FFB7D5" stroke="#5B5563" strokeWidth="2" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
     <circle cx="12" cy="12" r="4" fill="#FFEAA7" />
@@ -121,8 +123,34 @@ export const FlowerLogoSVG = () => (
     <circle cx="18" cy="12" r="3.5" />
   </svg>
 );
+
 export const HeartSVG = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="#FF7675" stroke="#5B5563" strokeWidth="1.5" style={{ display: 'inline-block', verticalAlign: 'middle', margin: '0 4px' }}>
     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+  </svg>
+);
+
+// --- NEW DAY 2 ASSETS ---
+export const CheckIconSVG = () => (
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+export const SunCloudSVG = () => (
+  <svg viewBox="0 0 100 80" width="100%" height="100%">
+    {/* Sun */}
+    <circle cx="55" cy="35" r="18" fill="#FFEAA7" stroke="#5B5563" strokeWidth="2.5" />
+    {/* Sun Rays */}
+    <line x1="55" y1="12" x2="55" y2="6" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="55" y1="58" x2="55" y2="64" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="32" y1="35" x2="26" y2="35" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="78" y1="35" x2="84" y2="35" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="39" y1="19" x2="35" y2="15" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="71" y1="51" x2="75" y2="55" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="71" y1="19" x2="75" y2="15" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="39" y1="51" x2="35" y2="55" stroke="#5B5563" strokeWidth="2.5" strokeLinecap="round" />
+    {/* Cloud overlay */}
+    <path d="M25 55 C25 42, 45 42, 50 48 C55 38, 72 40, 75 50 C82 50, 86 55, 84 62 C84 68, 30 68, 25 62 C18 62, 18 55, 25 55 Z" fill="#FFFFFF" stroke="#5B5563" strokeWidth="2.5" strokeLinejoin="round" />
   </svg>
 );
