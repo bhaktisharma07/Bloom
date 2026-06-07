@@ -1,14 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SproutSVG, SunCloudSVG, CheckIconSVG } from '../components/SVGAssets';
 import { DEFAULT_SEEDS } from '../data/seeds';
 
+const STORAGE_KEY = 'bloom_completed_seeds';
+
 function Home() {
-  const [checkedSeeds, setCheckedSeeds] = useState({
-    water: false,
-    study: false,
-    code: false,
-    journal: false
-  });
+  // Initialize state from localStorage using today's date
+  const getInitialCheckedSeeds = () => {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed[today]) {
+          return {
+            water: parsed[today].includes('water'),
+            study: parsed[today].includes('study'),
+            code: parsed[today].includes('code'),
+            journal: parsed[today].includes('journal')
+          };
+        }
+      }
+    } catch (e) {
+      console.error("Error loading completed seeds:", e);
+    }
+    return {
+      water: false,
+      study: false,
+      code: false,
+      journal: false
+    };
+  };
+
+  const [checkedSeeds, setCheckedSeeds] = useState(getInitialCheckedSeeds);
+
+  // Sync state to localStorage whenever checked seeds toggle
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const history = saved ? JSON.parse(saved) : {};
+      
+      const checkedIds = Object.keys(checkedSeeds).filter(key => checkedSeeds[key]);
+      history[today] = checkedIds;
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    } catch (e) {
+      console.error("Error saving completed seeds:", e);
+    }
+  }, [checkedSeeds]);
 
   const toggleSeed = (id) => {
     setCheckedSeeds(prev => ({
