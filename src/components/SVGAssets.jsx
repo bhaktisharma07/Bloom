@@ -102,16 +102,13 @@ export const HeroIllustrationSVG = () => (
     <circle cx="112" cy="162" r="2" fill="#5B5563" />
     <circle cx="128" cy="162" r="2" fill="#5B5563" />
     <path d="M117 169 Q120 172, 123 169" stroke="#5B5563" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-
-    {/* Sparkles around */}
-    <text x="50" y="110" fill="#FFB7D5" fontSize="16">✨</text>
-    <text x="180" y="130" fill="#E8D9FF" fontSize="18">✨</text>
-    <text x="170" y="60" fill="#FFEAA7" fontSize="14">✨</text>
   </svg>
 );
 
 export const SparkleSVG = () => (
-  <span style={{ color: '#FFEAA7', display: 'inline-block' }}>✨</span>
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="#FFEAA7" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <path d="M12 2l2.4 4.8 5.3.8-3.8 3.7.9 5.3-4.8-2.5-4.8 2.5.9-5.3-3.8-3.7 5.3-.8z" />
+  </svg>
 );
 
 export const FlowerLogoSVG = () => (
@@ -154,3 +151,36 @@ export const SunCloudSVG = () => (
     <path d="M25 55 C25 42, 45 42, 50 48 C55 38, 72 40, 75 50 C82 50, 86 55, 84 62 C84 68, 30 68, 25 62 C18 62, 18 55, 25 55 Z" fill="#FFFFFF" stroke="#5B5563" strokeWidth="2.5" strokeLinejoin="round" />
   </svg>
 );
+
+export const TodayIconSVG = ({ size = 20, strokeColor = 'currentColor', fill = 'none' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill={fill} stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="9 11 12 14 17 9" />
+  </svg>
+);
+
+export const DashboardIconSVG = ({ size = 20, strokeColor = 'currentColor', fill = 'none' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill={fill} stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <rect x="3" y="3" width="7" height="9" rx="1" />
+    <rect x="14" y="3" width="7" height="5" rx="1" />
+    <rect x="14" y="12" width="7" height="9" rx="1" />
+    <rect x="3" y="16" width="7" height="5" rx="1" />
+  </svg>
+);
+
+export const ProgressIconSVG = ({ size = 20, strokeColor = 'currentColor', fill = 'none' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill={fill} stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <line x1="18" y1="20" x2="18" y2="10" />
+    <line x1="12" y1="20" x2="12" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="14" />
+  </svg>
+);
+
+export const BoltIconSVG = ({ size = 20, strokeColor = 'currentColor', fill = 'none' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill={fill} stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+);
+
+
+

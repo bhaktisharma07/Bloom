@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { SproutSVG, SunCloudSVG, CheckIconSVG } from '../components/SVGAssets';
 import { DEFAULT_SEEDS } from '../data/seeds';
-
-const STORAGE_KEY = 'bloom_completed_seeds';
+import { STORAGE_KEY } from '../data/storage';
 
 function Home() {
-  // Initialize state from localStorage using today's date
+  const today = new Date().toLocaleDateString('en-CA');
+  
+  // Format human-readable date for sub-header (e.g. Tuesday, June 9)
+  const formattedDate = new Date().toLocaleDateString('default', { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+  // Initialize checklist state from localStorage
   const getInitialCheckedSeeds = () => {
-    const today = new Date().toISOString().split('T')[0];
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -34,9 +40,8 @@ function Home() {
 
   const [checkedSeeds, setCheckedSeeds] = useState(getInitialCheckedSeeds);
 
-  // Sync state to localStorage whenever checked seeds toggle
+  // Sync state to localStorage
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       const history = saved ? JSON.parse(saved) : {};
@@ -58,42 +63,76 @@ function Home() {
   };
 
   const completedCount = Object.values(checkedSeeds).filter(Boolean).length;
+  const totalCount = DEFAULT_SEEDS.length;
+  const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  // Weekly activity calculations (Mon-Sun)
+  const getWeekDays = () => {
+    const dayOfWeek = new Date().getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date();
+    monday.setDate(monday.getDate() + mondayOffset);
+
+    const weekdays = [];
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const history = saved ? JSON.parse(saved) : {};
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dateStr = d.toLocaleDateString('en-CA');
+        
+        const completed = history[dateStr] || [];
+        const isComplete = completed.length > 0;
+        const isFuture = dateStr > today;
+
+        weekdays.push({
+          label: labels[i],
+          dateStr,
+          isComplete,
+          isFuture,
+          isToday: dateStr === today
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return weekdays;
+  };
+
+  const weekDays = getWeekDays();
 
   return (
     <div className="home-page-container">
       
-      {/* Greeting Card */}
-      <section className="cozy-card greeting-card">
-        <div className="greeting-content">
-          <h2 className="greeting-title">Ready to bloom today? ✨</h2>
-          <p className="greeting-text">
-            Welcome to a new day. Let's tend to our garden and water our seeds one step at a time.
+      {/* 1. Header Section */}
+      <header className="page-title-section" style={{ marginBottom: '24px' }}>
+        <span className="metadata-tag">{formattedDate}</span>
+        <h1 className="page-heading">Today</h1>
+      </header>
+
+      {/* 2. Progress Section */}
+      <section className="cozy-card progress-bar-card" style={{ marginBottom: '24px' }}>
+        <div className="progress-summary-row">
+          <p className="progress-status-text">
+            {completedCount} of {totalCount} habits completed &bull; {progressPercentage}% complete
           </p>
         </div>
-        <div className="greeting-illustration">
-          <SunCloudSVG />
+        <div className="habit-progress-track">
+          <div 
+            className="habit-progress-fill" 
+            style={{ width: `${progressPercentage}%` }}
+          ></div>
         </div>
       </section>
 
-      {/* Today's Seeds Checklist Card */}
-      <section className="cozy-card seeds-card">
-        <div className="seeds-header">
-          <div>
-            <h2>Today's Seeds</h2>
-            <p className="subtitle">
-              {completedCount === DEFAULT_SEEDS.length 
-                ? "All seeds watered! Your garden is happy 🌸✨" 
-                : `Watered ${completedCount} of ${DEFAULT_SEEDS.length} seeds today`}
-            </p>
-          </div>
-          <div className="seeds-badge">
-            <div className="seeds-badge-sprout">
-              <SproutSVG />
-            </div>
-          </div>
-        </div>
-
-        <div className="seed-list">
+      {/* 3. Habit List Section */}
+      <section className="cozy-card checklist-card" style={{ marginBottom: '24px' }}>
+        <h3 className="section-title-tag">Habit List</h3>
+        <div className="seed-list" style={{ marginTop: '16px' }}>
           {DEFAULT_SEEDS.map(seed => {
             const isCompleted = checkedSeeds[seed.id];
             return (
@@ -103,8 +142,8 @@ function Home() {
                 onClick={() => toggleSeed(seed.id)}
               >
                 <div className="seed-checkbox-wrapper">
-                  <div className="seed-checkmark">
-                    {isCompleted && <CheckIconSVG />}
+                  <div className={`circle-checkbox-check ${isCompleted ? 'checked' : 'unchecked'}`}>
+                    {isCompleted ? '✓' : ''}
                   </div>
                 </div>
                 <span className="seed-text">{seed.title}</span>
@@ -114,12 +153,20 @@ function Home() {
         </div>
       </section>
 
-      {/* Decorative Tips Card */}
-      <section className="cozy-card tips-card">
-        <h3>Bloom Message of the Day 🌷</h3>
-        <p>
-          Be patient with yourself. Just like real flowers, habits take time to grow and bloom. Take a deep breath.
-        </p>
+      {/* 4. Weekly Activity Section */}
+      <section className="cozy-card weekly-activity-card">
+        <h3 className="section-title-tag">Weekly Activity</h3>
+        <div className="weekly-activity-row" style={{ marginTop: '16px' }}>
+          {weekDays.map(day => (
+            <div 
+              key={day.dateStr} 
+              className={`weekly-day-col ${day.isToday ? 'is-today' : ''}`}
+            >
+              <div className={`weekly-dot ${day.isComplete ? 'completed' : day.isFuture ? 'future' : 'incomplete'}`}></div>
+              <span className="weekly-label">{day.label}</span>
+            </div>
+          ))}
+        </div>
       </section>
 
     </div>
