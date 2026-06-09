@@ -11,7 +11,6 @@ Bloom is a minimalist habit tracking web application designed to help users buil
 * Weekly performance analytics
 * Monthly activity overview
 * Local storage persistence
-* Data backup and restore
 
 ## Tech Stack
 
