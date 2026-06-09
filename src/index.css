@@ -618,10 +618,23 @@ body {
 
 /* --- TODAY (HOME) SCREEN --- */
 .home-page-container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   padding: 40px 0 100px 0;
+}
+
+.today-split-layout {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .today-split-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 .page-title-section {
@@ -738,18 +751,23 @@ body {
   justify-content: center;
   font-size: 12px;
   font-weight: 850;
-  transition: var(--transition);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .circle-checkbox-check.checked {
   background-color: var(--pink);
   color: #FFFFFF;
   border: 2px solid var(--pink);
+  transform: scale(1.08);
 }
 
 .circle-checkbox-check.unchecked {
   border: 2px solid rgba(63, 61, 86, 0.15);
   background-color: transparent;
+}
+
+.seed-item:active .circle-checkbox-check {
+  transform: scale(0.9);
 }
 
 /* Weekly Activity dots and labels */
@@ -801,10 +819,24 @@ body {
 
 /* --- DASHBOARD SCREEN --- */
 .dashboard-page-container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   padding: 40px 0 100px 0;
+}
+
+.dashboard-split-layout {
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-split-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 .dashboard-grid-overview {
@@ -838,8 +870,8 @@ body {
 
 .progress-ring-container-dashboard {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 150px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -859,7 +891,7 @@ body {
 
 .progress-ring-percentage-text {
   position: absolute;
-  font-size: 18px;
+  font-size: 28px;
   font-weight: 850;
   color: var(--text);
 }
@@ -963,8 +995,8 @@ body {
 }
 
 .activity-dot-item {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   border: 1.5px solid rgba(63, 61, 86, 0.05);
   margin: 0 auto;
@@ -991,10 +1023,23 @@ body {
 
 /* --- PROGRESS SCREEN --- */
 .progress-page-container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   padding: 40px 0 100px 0;
+}
+
+.progress-split-layout {
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .progress-split-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 /* Metrics panel grid */
@@ -1269,5 +1314,24 @@ body {
   }
   .floating-nav {
     bottom: 16px;
+    padding: 4px;
+    gap: 4px;
   }
+  .nav-item {
+    padding: 6px 12px;
+    font-size: 11px;
+    gap: 4px;
+  }
+}
+
+/* Onboarding Welcome Card styles */
+.onboarding-banner-card {
+  background-color: var(--cream) !important;
+  border: 1px solid rgba(246, 199, 213, 0.4) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.onboarding-banner-card:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
 }

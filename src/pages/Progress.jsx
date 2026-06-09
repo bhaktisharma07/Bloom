@@ -1,10 +1,10 @@
-import React from 'react';
-import { STORAGE_KEY } from '../data/storage';
-import { DEFAULT_SEEDS } from '../data/seeds';
+import React, { useState } from 'react';
+import { getStoredHabits, STORAGE_KEY } from '../data/storage';
 import { BoltIconSVG } from '../components/SVGAssets';
 
 function Progress() {
-  const todayStr = new Date().toLocaleDateString('en-CA');
+  // Load dynamic habits list
+  const [habits] = useState(() => getStoredHabits());
 
   // Load history from localStorage
   const getHistory = () => {
@@ -23,7 +23,11 @@ function Progress() {
   const getLongestStreak = () => {
     try {
       const dates = Object.keys(history)
-        .filter(dateStr => history[dateStr] && history[dateStr].length > 0)
+        .filter(dateStr => {
+          const completed = history[dateStr] || [];
+          const activeCompleted = completed.filter(id => habits.some(h => h.id === id));
+          return activeCompleted.length > 0;
+        })
         .sort();
       
       if (dates.length === 0) return 0;
@@ -33,14 +37,16 @@ function Progress() {
       let prevDate = null;
       
       for (const dStr of dates) {
-        // Replace dashes with slashes for parsing to prevent UTC shifts
-        const d = new Date(dStr.replace(/-/g, '/'));
+        // Parse dateStr using calendar components to avoid UTC shift
+        const parts = dStr.split('-');
+        const current = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
         
         if (!prevDate) {
           currentStreak = 1;
         } else {
-          const diffTime = Math.abs(d - prevDate);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          // Check if current is exactly 1 day after prevDate
+          const diffTime = current.getTime() - prevDate.getTime();
+          const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
           
           if (diffDays === 1) {
             currentStreak++;
@@ -49,7 +55,7 @@ function Progress() {
           }
         }
         
-        prevDate = d;
+        prevDate = current;
         if (currentStreak > maxStreak) {
           maxStreak = currentStreak;
         }
@@ -67,14 +73,14 @@ function Progress() {
       const months = {};
       Object.keys(history).forEach(dateStr => {
         const completed = history[dateStr] || [];
-        if (completed.length > 0) {
-          // parse YYYY-MM-DD
+        const activeCompleted = completed.filter(id => habits.some(h => h.id === id));
+        if (activeCompleted.length > 0) {
           const parts = dateStr.split('-');
           const year = parts[0];
           const month = parseInt(parts[1], 10) - 1;
           const date = new Date(year, month, 1);
           const label = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-          months[label] = (months[label] || 0) + completed.length;
+          months[label] = (months[label] || 0) + activeCompleted.length;
         }
       });
       const sorted = Object.keys(months).sort((a, b) => months[b] - months[a]);
@@ -84,9 +90,14 @@ function Progress() {
     }
   };
 
-  const totalCompletions = Object.values(history).reduce((acc, curr) => acc + (curr ? curr.length : 0), 0);
+  const totalCompletions = Object.values(history).reduce((acc, curr) => {
+    if (!curr) return acc;
+    const activeCompletionsCount = curr.filter(id => habits.some(h => h.id === id)).length;
+    return acc + activeCompletionsCount;
+  }, 0);
+
   const totalDaysTracked = Object.keys(history).length || 1;
-  const completionRate = Math.round((totalCompletions / (totalDaysTracked * DEFAULT_SEEDS.length)) * 100) || 0;
+  const completionRate = habits.length > 0 ? Math.round((totalCompletions / (totalDaysTracked * habits.length)) * 100) : 0;
 
   const longestStreak = getLongestStreak();
   const bestMonth = getBestMonth();
@@ -94,7 +105,10 @@ function Progress() {
   // Top Habit calculation
   const getTopHabit = () => {
     try {
-      const counts = { water: 0, study: 0, code: 0, journal: 0 };
+      if (habits.length === 0) return { title: 'None', percentage: 0 };
+      
+      const counts = {};
+      habits.forEach(h => { counts[h.id] = 0; });
       const totalDays = Object.keys(history).length || 1;
       
       Object.keys(history).forEach(dateStr => {
@@ -106,7 +120,7 @@ function Progress() {
         });
       });
       
-      let bestId = 'water';
+      let bestId = habits[0].id;
       let maxCount = -1;
       
       Object.keys(counts).forEach(id => {
@@ -116,7 +130,7 @@ function Progress() {
         }
       });
       
-      const seed = DEFAULT_SEEDS.find(s => s.id === bestId);
+      const seed = habits.find(s => s.id === bestId);
       const title = seed ? seed.title : 'None';
       const percentage = Math.round((maxCount / totalDays) * 100) || 0;
       
@@ -148,16 +162,17 @@ function Progress() {
       
       if (year === currentYear && month === currentMonth) {
         const completed = history[dateStr] || [];
-        completions += completed.length;
+        const activeCompleted = completed.filter(id => habits.some(h => h.id === id));
+        completions += activeCompleted.length;
         loggedDays++;
         
         // Count weekday frequencies
         const d = new Date(dateStr.replace(/-/g, '/'));
-        dayCounts[d.getDay()] += completed.length;
+        dayCounts[d.getDay()] += activeCompleted.length;
       }
     });
     
-    const rate = loggedDays > 0 ? Math.round((completions / (loggedDays * DEFAULT_SEEDS.length)) * 100) : 0;
+    const rate = (loggedDays > 0 && habits.length > 0) ? Math.round((completions / (loggedDays * habits.length)) * 100) : 0;
     
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     let maxIndex = 1; // Default Mon
@@ -178,16 +193,71 @@ function Progress() {
 
   const thisMonth = getThisMonthStats();
 
-  // History list (reverse chronological order)
+  // History list (reverse chronological order, filtered by active habits)
   const historyEntries = Object.keys(history)
-    .filter(dateStr => history[dateStr] && history[dateStr].length > 0)
+    .filter(dateStr => {
+      const completed = history[dateStr] || [];
+      const activeCompleted = completed.filter(id => habits.some(h => h.id === id));
+      return activeCompleted.length > 0;
+    })
     .sort()
     .reverse();
 
-  // Map seed IDs to titles
+  // Map habit IDs to titles
   const getSeedTitle = (id) => {
-    const seed = DEFAULT_SEEDS.find(s => s.id === id);
+    const seed = habits.find(s => s.id === id);
     return seed ? seed.title : id;
+  };
+
+  // Export Data to JSON File
+  const exportData = () => {
+    try {
+      const habitsData = localStorage.getItem('bloom_habits') || '[]';
+      const historyData = localStorage.getItem(STORAGE_KEY) || '{}';
+      
+      const backup = {
+        version: 'bloom-v1',
+        habits: JSON.parse(habitsData),
+        completions: JSON.parse(historyData)
+      };
+      
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bloom-backup-${new Date().toLocaleDateString('en-CA')}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Failed to export backup: " + e.message);
+    }
+  };
+
+  // Import Data from JSON File
+  const importData = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const backup = JSON.parse(event.target.result);
+        if (backup.version !== 'bloom-v1' || !Array.isArray(backup.habits) || typeof backup.completions !== 'object') {
+          throw new Error("Invalid backup file format.");
+        }
+        
+        localStorage.setItem('bloom_habits', JSON.stringify(backup.habits));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(backup.completions));
+        
+        alert("Data successfully restored!");
+        window.location.reload();
+      } catch (err) {
+        alert("Restore failed: " + err.message);
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -198,115 +268,175 @@ function Progress() {
         <h1 className="page-heading">Progress</h1>
       </header>
 
-      {/* 1. Core Metrics Grid */}
-      <section className="cozy-card progress-metrics-card" style={{ marginBottom: '24px' }}>
-        <h3 className="section-title-tag">Overview Metrics</h3>
-        <div className="metrics-grid" style={{ marginTop: '20px' }}>
-          
-          <div className="metric-tile">
-            <span className="metric-tag">Longest Streak</span>
-            <div className="metric-value-row">
-              <BoltIconSVG size={20} strokeColor="var(--pink)" />
-              <span className="metric-value">{longestStreak} Days</span>
-            </div>
-          </div>
-
-          <div className="metric-tile">
-            <span className="metric-tag">Best Month</span>
-            <span className="metric-value" style={{ fontSize: '18px', display: 'block', marginTop: '6px' }}>
-              {bestMonth}
-            </span>
-          </div>
-
-          <div className="metric-tile">
-            <span className="metric-tag">Total Completions</span>
-            <span className="metric-value">{totalCompletions}</span>
-          </div>
-
-          <div className="metric-tile">
-            <span className="metric-tag">Completion Rate</span>
-            <span className="metric-value">{completionRate}%</span>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 2. Top Habit Section (Progress Bar format) */}
-      <section className="cozy-card top-habit-card" style={{ marginBottom: '24px' }}>
-        <h3 className="section-title-tag">Top Habit</h3>
-        <div className="top-habit-body" style={{ marginTop: '16px' }}>
-          <div className="top-habit-meta">
-            <span className="top-habit-name">{topHabit.title}</span>
-            <span className="top-habit-percent">{topHabit.percentage}% consistent</span>
-          </div>
-          <div className="top-habit-progress-bg">
-            <div 
-              className="top-habit-progress-fill" 
-              style={{ width: `${topHabit.percentage}%` }}
-            ></div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. This Month Summary */}
-      <section className="cozy-card progress-stats-card" style={{ marginBottom: '24px' }}>
-        <h3 className="section-title-tag">This Month</h3>
-        <div className="month-stats-grid" style={{ marginTop: '20px' }}>
-          <div className="month-stat-item">
-            <span className="month-stat-num">{thisMonth.rate}%</span>
-            <span className="month-stat-label">Completion Rate</span>
-          </div>
-          <div className="month-stat-item">
-            <span className="month-stat-num">{thisMonth.total}</span>
-            <span className="month-stat-label">Total Habits Done</span>
-          </div>
-          <div className="month-stat-item">
-            <span className="month-stat-num" style={{ fontSize: '18px' }}>{thisMonth.bestDay}</span>
-            <span className="month-stat-label">Best Weekday</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Timeline Journal History */}
-      <section className="cozy-card history-card">
-        <h3 className="section-title-tag">Journal History</h3>
-        
-        {historyEntries.length === 0 ? (
-          <p className="subtitle" style={{ textAlign: 'center', padding: '24px 0', marginTop: '16px' }}>
-            No logged history yet. Start checking habits on the Today page!
+      {/* Empty State warning if habits list is empty */}
+      {habits.length === 0 && (
+        <section className="cozy-card" style={{ marginBottom: '24px', textAlign: 'center', padding: '32px' }}>
+          <h4 style={{ color: 'var(--text)', marginBottom: '8px', fontSize: '15px' }}>No habits configured.</h4>
+          <p style={{ color: 'var(--text-light)', fontSize: '13px' }}>
+            Add your habits on the Today page to track streaks, top habits, and monthly consistency.
           </p>
-        ) : (
-          <div className="history-timeline" style={{ marginTop: '24px' }}>
-            {historyEntries.map(dateStr => {
-              const completedList = history[dateStr] || [];
-              const formattedDate = new Date(dateStr.replace(/-/g, '/')).toLocaleDateString('default', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
-              });
+        </section>
+      )}
+
+      {/* Progress Split Layout (55/45) */}
+      <div className="progress-split-layout">
+        
+        {/* Left Column (55%) */}
+        <div className="progress-left-col">
+          {/* 1. Core Metrics Grid */}
+          <section className="cozy-card progress-metrics-card" style={{ marginBottom: '24px' }}>
+            <h3 className="section-title-tag">Overview Metrics</h3>
+            <div className="metrics-grid" style={{ marginTop: '20px' }}>
               
-              return (
-                <div key={dateStr} className="history-timeline-item">
-                  <div className="history-time-node">
-                    <span className="timeline-date-label">{formattedDate}</span>
-                  </div>
-                  <div className="history-timeline-connector">
-                    <div className="timeline-node-circle"></div>
-                    <div className="timeline-connector-line"></div>
-                  </div>
-                  <div className="history-pill-list">
-                    {completedList.map(seedId => (
-                      <span key={seedId} className="history-habit-pill">
-                        {getSeedTitle(seedId)}
-                      </span>
-                    ))}
-                  </div>
+              <div className="metric-tile">
+                <div className="metric-value-row">
+                  <BoltIconSVG size={20} strokeColor="var(--pink)" />
+                  <span className="metric-value">{longestStreak} Days</span>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
+                <span className="metric-tag">Longest Streak</span>
+              </div>
+
+              <div className="metric-tile">
+                <span className="metric-value" style={{ fontSize: '18px', display: 'block', marginTop: '4px' }}>
+                  {bestMonth}
+                </span>
+                <span className="metric-tag">Best Month</span>
+              </div>
+
+              <div className="metric-tile">
+                <span className="metric-value">{totalCompletions}</span>
+                <span className="metric-tag">Total Completions</span>
+              </div>
+
+              <div className="metric-tile">
+                <span className="metric-value">{completionRate}%</span>
+                <span className="metric-tag">Completion Rate</span>
+              </div>
+
+            </div>
+          </section>
+
+          {/* 4. Timeline Journal History */}
+          <section className="cozy-card history-card">
+            <h3 className="section-title-tag">Journal History</h3>
+            
+            {historyEntries.length === 0 ? (
+              <p className="subtitle" style={{ textAlign: 'center', padding: '24px 0', marginTop: '16px' }}>
+                No logged history yet. Start checking habits on the Today page!
+              </p>
+            ) : (
+              <div className="history-timeline" style={{ marginTop: '24px' }}>
+                {historyEntries.map(dateStr => {
+                  const completedList = history[dateStr] || [];
+                  const activeList = completedList.filter(id => habits.some(h => h.id === id));
+                  const formattedDate = new Date(dateStr.replace(/-/g, '/')).toLocaleDateString('default', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  });
+                  
+                  return (
+                    <div key={dateStr} className="history-timeline-item">
+                      <div className="history-time-node">
+                        <span className="timeline-date-label">{formattedDate}</span>
+                      </div>
+                      <div className="history-timeline-connector">
+                        <div className="timeline-node-circle"></div>
+                        <div className="timeline-connector-line"></div>
+                      </div>
+                      <div className="history-pill-list">
+                        {activeList.map(seedId => (
+                          <span key={seedId} className="history-habit-pill">
+                            {getSeedTitle(seedId)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Right Column (45%) */}
+        <div className="progress-right-col">
+          {/* 2. Top Habit Section (Progress Bar format) */}
+          <section className="cozy-card top-habit-card" style={{ marginBottom: '24px' }}>
+            <h3 className="section-title-tag">Top Habit</h3>
+            <div className="top-habit-body" style={{ marginTop: '16px' }}>
+              {habits.length === 0 ? (
+                <p style={{ color: 'var(--text-light)', fontSize: '13px' }}>No habits configured.</p>
+              ) : (
+                <>
+                  <div className="top-habit-meta">
+                    <span className="top-habit-name">{topHabit.title}</span>
+                    <span className="top-habit-percent">{topHabit.percentage}% consistent</span>
+                  </div>
+                  <div className="top-habit-progress-bg">
+                    <div 
+                      className="top-habit-progress-fill" 
+                      style={{ width: `${topHabit.percentage}%` }}
+                    ></div>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+
+          {/* 3. This Month Summary */}
+          <section className="cozy-card progress-stats-card">
+            <h3 className="section-title-tag">This Month</h3>
+            <div className="month-stats-grid" style={{ marginTop: '20px' }}>
+              <div className="month-stat-item">
+                <span className="month-stat-num">{thisMonth.rate}%</span>
+                <span className="month-stat-label">Completion Rate</span>
+              </div>
+              <div className="month-stat-item">
+                <span className="month-stat-num">{thisMonth.total}</span>
+                <span className="month-stat-label">Total Habits Done</span>
+              </div>
+              <div className="month-stat-item">
+                <span className="month-stat-num" style={{ fontSize: '18px' }}>{thisMonth.bestDay}</span>
+                <span className="month-stat-label">Best Weekday</span>
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Data Management (Backup/Restore) */}
+          <section className="cozy-card backup-card" style={{ marginTop: '24px' }}>
+            <h3 className="section-title-tag">Data Backup</h3>
+            <div className="backup-body" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-light)', lineHeight: '1.4' }}>
+                Save your routine configuration and progress history as a local backup file, or restore from a previous export.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+                <button 
+                  type="button" 
+                  onClick={exportData}
+                  className="cozy-btn coral-pill"
+                  style={{ padding: '8px 16px', fontSize: '13px' }}
+                >
+                  Export Data
+                </button>
+                <label 
+                  className="cozy-btn"
+                  style={{ padding: '8px 16px', fontSize: '13px', backgroundColor: 'transparent', border: '1px solid rgba(63, 61, 86, 0.15)', cursor: 'pointer', display: 'inline-block', textAlign: 'center' }}
+                >
+                  Import Data
+                  <input 
+                    type="file" 
+                    accept=".json" 
+                    onChange={importData} 
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+            </div>
+          </section>
+        </div>
+
+      </div>
 
     </div>
   );
